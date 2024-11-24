@@ -1,0 +1,104 @@
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color:rgb(180, 202, 250);
+}
+.navbar {
+    background-color: #4c6baf;
+}
+.navbar-brand, .nav-link {
+    color: white !important;
+}
+.jumbotron {
+    background-color: #7f87fa;
+    padding: 2rem;
+}
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.event-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+.event-card:hover {
+    transform: translateY(-5px);
+}
+.event-info {
+    padding: 15px;
+}
+.event-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+.event-institution {
+    font-size: 16px;
+    font-weight: bold;
+    color: #504f4f;
+}
+.event-description {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+.event-start {
+    font-size: 16px;
+    font-weight: bold;
+    color: #504f4f;
+}
+.event-end {
+    font-size: 16px;
+    font-weight: bold;
+    color: #504f4f;
+}
+.holiday-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+.holiday-card:hover {
+    transform: translateY(-5px);
+}
+.holiday-info {
+    padding: 15px;
+}
+.holiday-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+.holiday-description {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+.holiday-date {
+    font-size: 16px;
+    font-weight: bold;
+    color: #504f4f;
+}
+footer {
+    background-color: #4c56af;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+.navbar-light .navbar-nav .nav-link:hover{
+    color: rgb(78, 24, 3) !important;
+}
+@media (max-width: 768px) {
+    .navbar-nav {
+        flex-direction: column;
+    }
+}
