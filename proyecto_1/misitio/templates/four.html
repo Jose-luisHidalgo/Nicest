@@ -1,0 +1,193 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/rest.css" %}" rel="stylesheet">
+    <title>Inicio</title>
+    <script>
+        function reproducirAlarma() {
+        var alarma = document.getElementById('alarma');
+        
+        alarma.play();
+        }
+        function obtenerDispositivos() {
+            fetch('/api/devices/4')  
+            .then(response => response.json())
+                .then(data => {
+                    actualizarTabla(data);
+                    verificarCondiciones(data); 
+                })
+                .catch(error => {
+                    console.error('Error al obtener los datos:', error);
+                });
+        }
+
+        
+        function actualizarTabla(devices) {
+        const tbody = document.querySelector('tbody');
+        tbody.innerHTML = ''; 
+
+        devices.forEach(device => {
+            const row = document.createElement('tr');
+            
+            const labelCell = document.createElement('td');
+            labelCell.textContent = device.label;
+            row.appendChild(labelCell);
+
+            let temperature = '';
+            let humidity = '';
+            let dewpoint = '';
+
+            device.measurements.forEach(measurement => {
+                if (measurement.type === 'temperature') {
+                    temperature = parseFloat(measurement.value);
+                } else if (measurement.type === 'humidity') {
+                    humidity = parseFloat(measurement.value);
+                } else if (measurement.type === 'dewpoint') {
+                    dewpoint = parseFloat(measurement.value);
+                }
+            });
+
+            const temperatureCell = document.createElement('td');
+            temperatureCell.textContent = temperature;
+            const umbralTemp = obtenerUmbral('temperature');
+            const medTemp = obtenerMedio('temperature');
+            const limiteTemp = obtenerExtremo('temperature');
+            if (temperature >= umbralTemp && temperature < limiteTemp) {
+                temperatureCell.classList.add('cell-warning');
+            } else if(temperature >= medTemp && temperature < umbralTemp){
+                temperatureCell.classList.add('cell-midle');
+
+            } else if(temperature >= limiteTemp) {
+                temperatureCell.classList.add('cell-danger');
+
+            } else {
+                temperatureCell.classList.add('cell-safe')
+            }
+            row.appendChild(temperatureCell);
+
+            const humidityCell = document.createElement('td');
+            humidityCell.textContent = humidity;
+            const umbralHum = obtenerUmbral('humidity');
+            const medHum = obtenerMedio('humidity');
+            const limiteHum = obtenerExtremo('humidity');
+            if (humidity >= umbralHum && humidity < limiteHum) {
+                humidityCell.classList.add('cell-warning');
+            } else if(humidity >= medHum && humidity < umbralHum){
+                humidityCell.classList.add('cell-midle')
+
+            } else if(humidity >= limiteHum){
+                humidityCell.classList.add('cell-danger');
+            } else {
+                humidityCell.classList.add('cell-safe')
+            }
+            row.appendChild(humidityCell);
+
+            const dewpointCell = document.createElement('td');
+            dewpointCell.textContent = dewpoint;
+            const umbralDew = obtenerUmbral('dewpoint');
+            const medDew = obtenerMedio('dewpoint');
+            const limiteDew = obtenerExtremo('dewpoint');
+            if (dewpoint >= umbralDew && dewpoint < limiteDew) {
+                dewpointCell.classList.add('cell-warning');
+            } else if(dewpoint >= medDew && dewpoint < umbralDew){
+                dewpointCell.classList.add('cell-midle');
+            } else if(dewpoint >= limiteDew){
+                dewpointCell.classList.add('cell-danger');
+            } else {
+                dewpointCell.classList.add('cell-safe')
+            }
+            row.appendChild(dewpointCell);
+
+            const ipCell = document.createElement('td');
+            ipCell.textContent = device.api_ip;
+            row.appendChild(ipCell);
+
+            const linkCell = document.createElement('td');
+            const link = document.createElement('a');
+            link.href = `http://${device.api_ip}`;
+            link.classList.add('btn', 'btn_link');
+            link.textContent = 'Visitar';
+            linkCell.appendChild(link);
+            row.appendChild(linkCell);
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function obtenerUmbral(tipo) {
+        const umbrales = {
+            'temperature': 30,  
+            'humidity': 85,    
+            'dewpoint': 20      
+        };
+        return umbrales[tipo];
+    }
+    function obtenerMedio(tipo) {
+        const medios = {
+            'temperature': 25,  
+            'humidity': 70,    
+            'dewpoint': 15      
+        };
+        return medios[tipo];
+    }
+    function obtenerExtremo(tipo){
+        const extremos = {
+            'temperature': 35,  
+            'humidity': 90,    
+            'dewpoint': 22  
+        };
+        return extremos[tipo];
+    }
+    function verificarCondiciones(devices) {
+    fetch('/api/measurements/')
+        .then(response => response.json())
+        .then(measurements => {
+            devices.forEach(device => {
+                device.measurements.forEach(measurement => {
+                    const umbral = measurements.find(m => m.label === measurement.type);
+                    if (umbral && measurement.value > umbral.value) {
+                        
+                        reproducirAlarma();
+                    }
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Error al obtener las mediciones:', error);
+        });
+    }
+       
+        setInterval(obtenerDispositivos, 1000);  
+        window.onload = obtenerDispositivos;
+    </script>
+</head>
+<body>
+    <header>
+        {% include "header.html" %}
+    </header>
+    <div class="jumbotron">
+        <h1 class="display-4">monitoreo salas piso 4</h1>
+    </div>
+    <div class="gallery">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Temperatura (°C)</th>
+                    <th>Humedad (%)</th>
+                    <th>Punto de Condensación (°C)</th>
+                    <th>IP</th>
+                    <th>Link Principal</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <audio id="alarma" src="{% static "alarma.mp3" %}"></audio>
+</body>
+</html>
